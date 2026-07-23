@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Dark Zinc/Slate Theme (High Contrast) */
+  --bg-color: #09090b; /* zinc-950 */
+  --surface-color: #18181b; /* zinc-900 */
+  --surface-container: #27272a; /* zinc-800 */
+  --surface-container-high: #3f3f46; /* zinc-700 */
+  --surface-container-highest: #52525b; /* zinc-600 */
+  --text-primary: #fafafa; /* zinc-50 */
+  --text-muted: #a1a1aa; /* zinc-400 */
+  --primary-teal: #2563eb; /* blue-600 */
+  --primary-teal-dim: #1d4ed8; /* blue-700 */
+  --primary-glow: rgba(37, 99, 235, 0.25);
+  --secondary-purple: #7c3aed; /* violet-600 */
+  --secondary-purple-light: #8b5cf6; /* violet-500 */
+  --secondary-glow: rgba(124, 58, 237, 0.25);
+  --border-color: rgba(255, 255, 255, 0.15); /* Visible border */
+  --border-active: rgba(255, 255, 255, 0.4);
+  --glass-bg: rgba(24, 24, 27, 0.65); /* zinc-900 with opacity */
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+.light {
+  /* Light Slate Theme (High Contrast) */
+  --bg-color: #f8fafc; /* slate-50 */
+  --surface-color: #ffffff;
+  --surface-container: #f1f5f9; /* slate-100 */
+  --surface-container-high: #e2e8f0; /* slate-200 */
+  --surface-container-highest: #cbd5e1; /* slate-300 */
+  --text-primary: #0f172a; /* slate-900 */
+  --text-muted: #475569; /* slate-600 */
+  --primary-teal: #0284c7; /* sky-600 */
+  --primary-teal-dim: #0369a1; /* sky-700 */
+  --primary-glow: rgba(2, 132, 199, 0.2);
+  --secondary-purple: #6d28d9; /* violet-700 */
+  --secondary-purple-light: #7c3aed; /* violet-600 */
+  --secondary-glow: rgba(109, 40, 217, 0.2);
+  --border-color: rgba(15, 23, 42, 0.2); /* Visible border */
+  --border-active: rgba(15, 23, 42, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.2);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-active);
+  box-shadow: 0 12px 30px -10px var(--primary-glow);
+}
+
+.glow-teal {
+  box-shadow: 0 0 25px var(--primary-glow);
+}
+
+.glow-purple {
+  box-shadow: 0 0 25px var(--secondary-glow);
+}
+
+.text-gradient-teal {
+  background: linear-gradient(135deg, #00f5ff 0%, #63f7ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-aurora {
+  background: linear-gradient(135deg, #00f5ff 0%, #e3b5ff 50%, #9400e4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-teal-dim) 100%);
+  color: #002021;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 25px var(--primary-glow);
+  transform: scale(1.02);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-container-highest);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-teal);
+}
