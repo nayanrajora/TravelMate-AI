@@ -40,7 +40,8 @@ export default function Navbar() {
     { name: 'Weather', href: '/weather' },
     { name: 'Maps', href: '/maps' },
     { name: 'Hotels', href: '/hotels' },
-    { name: 'Budget', href: '/budget' }
+    { name: 'Budget', href: '/budget' },
+    ...(user ? [{ name: 'Bookings', href: '/bookings' }] : [])
   ];
 
   const toggleVoiceCommand = () => {
@@ -97,6 +98,7 @@ export default function Navbar() {
           
           {/* Voice Command Button */}
           <button
+            suppressHydrationWarning
             onClick={toggleVoiceCommand}
             title="Voice Command Assistant"
             className={`p-2.5 rounded-full glass-panel transition-all duration-300 border ${
@@ -110,6 +112,7 @@ export default function Navbar() {
 
           {/* Theme Toggle */}
           <button
+            suppressHydrationWarning
             onClick={toggleTheme}
             title="Toggle Light / Dark Mode"
             className="p-2.5 rounded-full glass-panel border border-cyan-500/20 text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-500/10 transition-all duration-300"

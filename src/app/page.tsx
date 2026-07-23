@@ -44,42 +44,48 @@ export default function LandingPage() {
       title: 'AI Itinerary Generator',
       desc: 'Instant hyper-personalized day-by-day travel routes crafted by neural engines tailored to your budget and travel style.',
       color: 'from-cyan-500 to-blue-600',
-      badge: 'Core Engine'
+      badge: 'Core Engine',
+      href: '/create-trip'
     },
     {
       icon: DollarSign,
       title: 'Smart Budget Analytics',
       desc: 'Interactive financial breakdown charts with real-time AI cost optimization tips and currency calculations.',
       color: 'from-purple-500 to-indigo-600',
-      badge: 'Recharts'
+      badge: 'Recharts',
+      href: '/budget'
     },
     {
       icon: MessageSquare,
       title: '24/7 AI Concierge Chat',
       desc: 'Streaming conversational assistant ready to answer questions, revise plans, or suggest local hidden gems on demand.',
       color: 'from-pink-500 to-purple-600',
-      badge: 'Live Chat'
+      badge: 'Live Chat',
+      href: '/chat'
     },
     {
       icon: CloudSun,
       title: 'Weather & Smart Outfit Advisor',
       desc: 'Forecast analysis coupled with automated clothing and packing suggestions based on temperature & humidity.',
       color: 'from-amber-400 to-orange-500',
-      badge: 'Real-time'
+      badge: 'Real-time',
+      href: '/weather'
     },
     {
       icon: Luggage,
       title: 'Reactive Packing Checklist',
       desc: 'Category-organized items (Clothes, Electronics, Documents) with progress tracking and exportable checklists.',
       color: 'from-emerald-400 to-teal-500',
-      badge: 'Interactive'
+      badge: 'Interactive',
+      href: '/packing'
     },
     {
       icon: Hotel,
       title: 'Curated Hotel Directory',
       desc: 'Deep filtering by price range, star rating, and amenities paired with dynamic map locations and instant booking.',
       color: 'from-cyan-400 to-teal-600',
-      badge: 'Verified'
+      badge: 'Verified',
+      href: '/hotels'
     }
   ];
 
@@ -153,7 +159,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-            Design perfect personalized trips in seconds. Experience interactive 3D flight paths, smart budget breakdowns, voice guidance, and real-time AI itineraries.
+            Architect your ultimate journey with state-of-the-art predictive routing. TravelMate AI synthesizes real-time metrics, hyper-personalized financial models, and environmental analytics into blazing-fast, actionable itineraries.
           </p>
 
           {/* CTA Buttons */}
@@ -227,28 +233,29 @@ export default function LandingPage() {
           {features.map((feat, idx) => {
             const IconComp = feat.icon;
             return (
-              <div
-                key={idx}
-                className="glass-card glass-card-hover p-6 flex flex-col justify-between space-y-4 border border-cyan-500/15"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${feat.color} shadow-lg text-slate-950`}>
-                      <IconComp className="w-6 h-6" />
+              <Link href={feat.href} key={idx} className="block group">
+                <div
+                  className="glass-card glass-card-hover p-6 flex flex-col justify-between space-y-4 border border-cyan-500/15 h-full"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className={`p-3 rounded-2xl bg-gradient-to-br ${feat.color} shadow-lg text-slate-950`}>
+                        <IconComp className="w-6 h-6" />
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold glass-panel text-cyan-300 border border-cyan-500/30 uppercase">
+                        {feat.badge}
+                      </span>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold glass-panel text-cyan-300 border border-cyan-500/30 uppercase">
-                      {feat.badge}
-                    </span>
+                    <h3 className="text-lg font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">{feat.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">{feat.desc}</p>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-100">{feat.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">{feat.desc}</p>
-                </div>
 
-                <div className="pt-2 flex items-center gap-1 text-xs font-bold text-cyan-400 group cursor-pointer">
-                  <span>Explore Module</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <div className="pt-2 flex items-center gap-1 text-xs font-bold text-cyan-400 group-hover:text-cyan-300">
+                    <span>Explore Module</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -266,6 +273,7 @@ export default function LandingPage() {
           {steps.map((st, i) => (
             <button
               key={i}
+              suppressHydrationWarning
               onClick={() => setActiveStep(i)}
               className={`flex-1 min-w-[140px] px-4 py-3 rounded-xl text-xs font-bold transition-all text-left border ${
                 activeStep === i
@@ -341,6 +349,7 @@ export default function LandingPage() {
                 className="glass-card border border-cyan-500/15 overflow-hidden transition-all"
               >
                 <button
+                  suppressHydrationWarning
                   onClick={() => setOpenFaq(isOpen ? null : i)}
                   className="w-full p-5 text-left flex items-center justify-between gap-4 focus:outline-none"
                 >

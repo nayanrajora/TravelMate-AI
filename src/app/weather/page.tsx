@@ -2,11 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { CloudSun, Sun, Wind, Droplets, Umbrella, Sparkles, Shirt, ShieldCheck, MapPin } from 'lucide-react';
+import { useTrip } from '@/context/TripContext';
+import Link from 'next/link';
 
 export default function WeatherPage() {
+  const { trips, activeTripId } = useTrip();
+  const activeTrip = trips.find(t => t.id === activeTripId);
+
   const [city, setCity] = useState('Tokyo, Japan');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync city with active trip if it exists
+  useEffect(() => {
+    if (activeTrip && activeTrip.destination) {
+      setCity(activeTrip.destination);
+    }
+  }, [activeTrip]);
 
   const [weatherData, setWeatherData] = useState({
     temp: '22°C',
@@ -58,6 +70,18 @@ export default function WeatherPage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       
+      {!activeTrip && (
+        <div className="glass-card p-6 border border-amber-500/20 bg-amber-500/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-amber-400">No Active Trip Selected</h3>
+            <p className="text-xs text-slate-400">You are viewing default weather data. To get accurate, localized forecasts and dynamic outfit advice, create an itinerary.</p>
+          </div>
+          <Link href="/create-trip" className="px-5 py-2.5 rounded-full btn-primary text-xs font-bold flex items-center gap-2 whitespace-nowrap">
+            <Sparkles className="w-4 h-4" /> Create AI Itinerary
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>

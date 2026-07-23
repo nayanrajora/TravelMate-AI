@@ -31,12 +31,13 @@ export default function Footer() {
               </label>
               <form onSubmit={(e) => { e.preventDefault(); alert("Subscribed to TravelMate AI Dispatch!"); }} className="flex gap-2 max-w-sm">
                 <input
+                  suppressHydrationWarning
                   type="email"
                   placeholder="Enter your email"
                   required
                   className="px-3.5 py-2 rounded-full glass-panel border border-cyan-500/20 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-400 flex-1"
                 />
-                <button type="submit" className="p-2.5 rounded-full btn-primary text-slate-950 hover:scale-105 transition-all">
+                <button suppressHydrationWarning type="submit" className="p-2.5 rounded-full btn-primary text-slate-950 hover:scale-105 transition-all">
                   <Send className="w-4 h-4" />
                 </button>
               </form>

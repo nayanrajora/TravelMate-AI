@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DollarSign, Plus, TrendingUp, Sparkles, PieChart as PieIcon, BarChart3, CheckCircle2 } from 'lucide-react';
+import { DollarSign, Plus, TrendingUp, Sparkles, PieChart as PieIcon, BarChart3, CheckCircle2, Activity, ArrowRight, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useTrip } from '@/context/TripContext';
+import Link from 'next/link';
 
 export default function BudgetPlannerPage() {
   const [expenses, setExpenses] = useState([
@@ -16,7 +18,14 @@ export default function BudgetPlannerPage() {
   const [category, setCategory] = useState('Food');
   const [amount, setAmount] = useState('');
 
+  const { trips, activeTripId } = useTrip();
+  const activeTrip = trips.find(t => t.id === activeTripId);
+  const budgetLimit = activeTrip?.totalBudgetEst || 5000;
+  const daysCount = activeTrip?.daysCount || 7;
+
   const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+  const budgetUtilization = Math.min((totalSpent / budgetLimit) * 100, 100);
+  const dailyAverage = totalSpent / daysCount;
 
   const chartData = [
     { category: 'Transport', amount: expenses.filter(e => e.category === 'Transport').reduce((a, c) => a + c.amount, 0) },
@@ -39,19 +48,58 @@ export default function BudgetPlannerPage() {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       
+      {!activeTrip && (
+        <div className="glass-card p-6 border border-amber-500/20 bg-amber-500/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-amber-400">No Active Trip Selected</h3>
+            <p className="text-xs text-slate-400">You are viewing default analyst metrics. Create an itinerary to bind these analytics to a real trip budget.</p>
+          </div>
+          <Link href="/create-trip" className="px-5 py-2.5 rounded-full btn-primary text-xs font-bold flex items-center gap-2 whitespace-nowrap">
+            <Sparkles className="w-4 h-4" /> Create AI Itinerary
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel border border-cyan-500/30 text-xs font-semibold text-cyan-300">
             <DollarSign className="w-4 h-4 text-cyan-400" /> FINANCIAL INTELLIGENCE DASHBOARD
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-100 mt-1">Trip Budget Planner</h1>
+          <h1 className="text-3xl font-extrabold text-slate-100 mt-1">Smart Budget Analytics</h1>
         </div>
 
-        <div className="glass-panel px-4 py-2 rounded-2xl border border-cyan-500/20 text-right">
-          <span className="text-[10px] text-slate-400 font-mono uppercase block">Total Logged Expense</span>
-          <span className="text-2xl font-extrabold text-gradient-teal font-mono">${totalSpent.toFixed(2)}</span>
+        <div className="flex gap-4">
+          <div className="glass-panel px-4 py-2 rounded-2xl border border-cyan-500/20 text-right">
+            <span className="text-[10px] text-slate-400 font-mono uppercase block">Daily Avg Spend</span>
+            <span className="text-xl font-extrabold text-purple-400 font-mono">${dailyAverage.toFixed(0)}/day</span>
+          </div>
+          <div className="glass-panel px-4 py-2 rounded-2xl border border-cyan-500/20 text-right bg-cyan-500/5">
+            <span className="text-[10px] text-slate-400 font-mono uppercase block">Total Logged Expense</span>
+            <span className="text-2xl font-extrabold text-gradient-teal font-mono">${totalSpent.toFixed(2)}</span>
+          </div>
         </div>
+      </div>
+
+      {/* Budget Utilization Bar */}
+      <div className="glass-card p-6 border border-cyan-500/20 space-y-3">
+        <div className="flex items-center justify-between text-xs font-bold">
+          <span className="text-slate-200 flex items-center gap-2"><Activity className="w-4 h-4 text-cyan-400"/> Budget Utilization ({activeTrip?.destination || 'Global'})</span>
+          <span className={`${budgetUtilization > 90 ? 'text-red-400' : 'text-cyan-400'} font-mono`}>
+            ${totalSpent.toFixed(0)} of ${budgetLimit} ({budgetUtilization.toFixed(1)}%)
+          </span>
+        </div>
+        <div className="w-full h-4 rounded-full bg-slate-900 overflow-hidden border border-cyan-500/20">
+          <div
+            className={`h-full transition-all duration-1000 ${budgetUtilization > 90 ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-cyan-400 to-purple-500'}`}
+            style={{ width: `${budgetUtilization}%` }}
+          />
+        </div>
+        {budgetUtilization > 85 && (
+          <p className="text-[10px] text-red-400 font-semibold flex items-center gap-1 mt-1">
+            <AlertTriangle className="w-3 h-3" /> Warning: Approaching estimated budget limit.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

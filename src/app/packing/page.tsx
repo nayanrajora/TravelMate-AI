@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Luggage, CheckSquare, Plus, Download, Sparkles, Shirt, Laptop, FileText, Sparkle } from 'lucide-react';
+import { Luggage, CheckSquare, Plus, Download, Sparkles, Shirt, Laptop, FileText, Sparkle, ArrowRight } from 'lucide-react';
+import { useTrip } from '@/context/TripContext';
+import Link from 'next/link';
 
 interface PackingItem {
   id: string;
@@ -40,15 +42,49 @@ export default function PackingPage() {
     setNewItemName('');
   };
 
+  const { trips, activeTripId } = useTrip();
+  const activeTrip = trips.find(t => t.id === activeTripId);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const totalItems = items.length;
   const packedCount = items.filter(i => i.packed).length;
   const packedPercent = Math.round((packedCount / (totalItems || 1)) * 100);
 
   const filteredItems = items.filter(i => i.category === activeTab);
 
+  const handleGenerateAI = () => {
+    setIsGenerating(true);
+    setTimeout(() => {
+      setItems([
+        { id: 'p-1', name: 'Lightweight Trench Coat', category: 'Clothes', packed: false },
+        { id: 'p-2', name: 'Comfortable Mesh Sneakers', category: 'Clothes', packed: false },
+        { id: 'p-3', name: 'Thermal Base Layers', category: 'Clothes', packed: false },
+        { id: 'p-4', name: 'Universal Travel Adapter', category: 'Electronics', packed: false },
+        { id: 'p-5', name: '10,000mAh Power Bank', category: 'Electronics', packed: false },
+        { id: 'p-6', name: 'Noise Cancelling Headphones', category: 'Electronics', packed: false },
+        { id: 'p-7', name: 'Passport & Visa Copies', category: 'Documents', packed: true },
+        { id: 'p-8', name: 'Travel Insurance Documents', category: 'Documents', packed: true },
+        { id: 'p-9', name: 'TSA Approved Toiletries Kit', category: 'Toiletries', packed: false }
+      ]);
+      setIsGenerating(false);
+    }, 1500);
+  };
+
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       
+      {!activeTrip && (
+        <div className="glass-card p-6 border border-amber-500/20 bg-amber-500/5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-amber-400">No Active Trip Selected</h3>
+            <p className="text-xs text-slate-400">You are viewing the default packing list. To get real-time AI suggestions based on your destination's weather, create an itinerary.</p>
+          </div>
+          <Link href="/create-trip" className="px-5 py-2.5 rounded-full btn-primary text-xs font-bold flex items-center gap-2 whitespace-nowrap">
+            <Sparkles className="w-4 h-4" /> Create AI Itinerary
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -58,12 +94,25 @@ export default function PackingPage() {
           <h1 className="text-3xl font-extrabold text-slate-100 mt-1">Interactive Packing Checklist</h1>
         </div>
 
-        <button
-          onClick={() => alert("Checklist exported as TXT file.")}
-          className="px-4 py-2 rounded-full glass-panel border border-cyan-500/30 text-xs font-bold text-slate-200 hover:text-cyan-300 flex items-center gap-1.5"
-        >
-          <Download className="w-4 h-4 text-cyan-400" /> Export List
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleGenerateAI}
+            disabled={isGenerating}
+            className={`px-4 py-2 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-all ${
+              isGenerating ? 'glass-panel border-cyan-500/30 text-cyan-300 opacity-70 cursor-wait' : 'glass-panel border-purple-500/30 text-purple-300 hover:border-purple-400 hover:text-purple-200'
+            }`}
+          >
+            <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} /> 
+            {isGenerating ? 'Analyzing Weather...' : 'AI Auto-Pack'}
+          </button>
+
+          <button
+            onClick={() => alert("Checklist exported as TXT file.")}
+            className="px-4 py-2 rounded-full glass-panel border border-cyan-500/30 text-xs font-bold text-slate-200 hover:text-cyan-300 flex items-center gap-1.5"
+          >
+            <Download className="w-4 h-4 text-cyan-400" /> Export List
+          </button>
+        </div>
       </div>
 
       {/* PROGRESS BAR */}
