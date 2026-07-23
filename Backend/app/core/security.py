@@ -11,9 +11,23 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify if plain password matches the hashed password"""
     return pwd_context.verify(plain_password, hashed_password)
 
+from fastapi import HTTPException, status
+
 def get_password_hash(password: str) -> str:
     """Generate bcrypt hash of a plain text password"""
-    return pwd_context.hash(password)
+    # Prevent bcrypt crashing due to 72 byte limit
+    if len(password.encode("utf-8")) > 72:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password cannot be longer than 72 bytes."
+        )
+    try:
+        return pwd_context.hash(password)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while hashing the password."
+        )
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     """Generate a secure signed JWT access token"""

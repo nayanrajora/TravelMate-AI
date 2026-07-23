@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+.next
+.git
+.env*
+.DS_Store
+Backend/venv
+Backend/__pycache__
+Backend/travelmate.db

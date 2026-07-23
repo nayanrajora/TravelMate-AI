@@ -1,30 +1,70 @@
 version: '3.8'
 
 services:
-  frontend:
-    build: 
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "3000:3000"
+  db:
+    image: mysql:8.0
+    container_name: travelmate_db
+    restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-    depends_on:
-      - backend
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-travelmate_db}
+      MYSQL_USER: ${MYSQL_USER:-tm_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-tm_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - travelmate_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    container_name: travelmate_backend
+    restart: unless-stopped
     ports:
       - "8000:8000"
-    volumes:
-      - travelmate_db:/app/travelmate.db
     environment:
-      - DATABASE_URL=sqlite:///./travelmate.db
-      - AI_PROVIDER=gemini
-    # .env file should be present in Backend/
+      # Database connection string using mysql+pymysql
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-tm_user}:${MYSQL_PASSWORD:-tm_password}@db:3306/${MYSQL_DATABASE:-travelmate_db}
+      SECRET_KEY: ${SECRET_KEY:-super_secret_jwt_key_change_me_in_production}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - travelmate_network
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        API_URL: http://backend:8000
+    container_name: travelmate_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      # Docker network routing for backend API (used by next.config.ts)
+      API_URL: http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - travelmate_network
 
 volumes:
-  travelmate_db:
+  mysql_data:
+
+networks:
+  travelmate_network:
+    driver: bridge

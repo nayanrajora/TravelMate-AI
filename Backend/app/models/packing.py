@@ -8,8 +8,8 @@ class PackingItem(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=False)
-    item_name = Column(String, nullable=False)
-    category = Column(String, nullable=False) # e.g. "Clothing", "Electronics", "Documents", "Toiletries"
+    item_name = Column(String(255), nullable=False)
+    category = Column(String(100), nullable=False) # e.g. "Clothing", "Electronics", "Documents", "Toiletries"
     is_packed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -27,6 +27,4 @@ class UserResponse(UserBase):
     # Configure Pydantic to read ORM properties directly
     model_config = ConfigDict(from_attributes=True)
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+

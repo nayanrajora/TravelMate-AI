@@ -13,7 +13,7 @@ class ChatMessage(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=False)
-    role = Column(String, nullable=False)  # "user" | "assistant"
+    role = Column(String(50), nullable=False)  # "user" | "assistant"
     content = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 

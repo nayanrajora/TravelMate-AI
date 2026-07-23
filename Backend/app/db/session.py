@@ -2,25 +2,28 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-# SQLite requires check_same_thread=False because FastAPI can make multiple requests in different threads.
-# For PostgreSQL or MySQL, this connect_arg is not needed.
+# SQLite requires check_same_thread=False because FastAPI handles
+# requests across multiple threads.
 connect_args = {}
+
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
-# Engine is the actual connection point to the physical database
+# Create the database engine
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args=connect_args,
-    echo=False # Set to True to print all SQL statement logs in local dev
+    pool_pre_ping=True,   # Verifies connections before using them
+    pool_recycle=3600,    # Recycles stale connections (helpful for MySQL)
+    echo=False            # Change to True only while debugging SQL queries
 )
 
-# SessionLocal is the factory class used to instantiate database sessions
+# Session factory
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
 
-# Base class is what all database models (User, Itinerary, etc.) will inherit from
+# Base class for all ORM models
 Base = declarative_base()

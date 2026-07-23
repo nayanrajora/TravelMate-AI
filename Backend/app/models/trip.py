@@ -8,12 +8,12 @@ class Trip(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    title = Column(String, nullable=False)
-    destination = Column(String, nullable=False)
+    title = Column(String(255), nullable=False)
+    destination = Column(String(255), nullable=False)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
-    budget_level = Column(String, nullable=False) # e.g. "Economy", "Moderate", "Luxury"
-    traveler_type = Column(String, nullable=False) # e.g. "Solo", "Couple", "Family", "Friends"
+    budget_level = Column(String(50), nullable=False) # e.g. "Economy", "Moderate", "Luxury"
+    traveler_type = Column(String(50), nullable=False) # e.g. "Solo", "Couple", "Family", "Friends"
     interests = Column(JSON, nullable=True) # List of selected interests: ["Food", "History", "Nature"]
     generated_itinerary = Column(JSON, nullable=True) # Stores the complete AI itinerary payload
     is_draft = Column(Boolean, default=False)

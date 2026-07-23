@@ -1,0 +1,9 @@
+cffi==2.0.0
+charset-normalizer==3.4.7
+cryptography==48.0.1
+pdfminer.six==20260107
+pillow==12.2.0
+pycparser==3.0
+PyMuPDF==1.27.2.3
+PyMySQL==1.2.0
+reportlab==4.5.1

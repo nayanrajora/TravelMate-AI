@@ -1,29 +1,56 @@
-FROM python:3.11-slim
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libpq-dev \
-    curl \
+    default-libmysqlclient-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY Backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Production image
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install runtime dependencies for MySQL client and healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    default-libmysqlclient-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN addgroup --system appgroup && adduser --system --group appuser
+
+# Copy installed wheels from builder and install them
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+RUN pip install --no-cache /wheels/*
 
 # Copy application code
 COPY Backend/ /app/
+RUN chown -R appuser:appgroup /app
 
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+# Switch to non-root user
+USER appuser
 
 EXPOSE 8000
 
 # Healthcheck for AWS ALB/App Runner
-HEALTHCHECK --interval=30s --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
   CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Make start.sh executable
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

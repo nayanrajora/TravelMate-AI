@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('chat_messages',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('trip_id', sa.Integer(), nullable=False),
-    sa.Column('role', sa.String(), nullable=False),
+    sa.Column('role', sa.String(50), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['trip_id'], ['trips.id'], ondelete='CASCADE'),

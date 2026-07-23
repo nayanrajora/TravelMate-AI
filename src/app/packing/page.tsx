@@ -42,8 +42,7 @@ export default function PackingPage() {
     setNewItemName('');
   };
 
-  const { trips, activeTripId } = useTrip();
-  const activeTrip = trips.find(t => t.id === activeTripId);
+  const { activeTrip } = useTrip();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const totalItems = items.length;

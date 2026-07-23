@@ -41,10 +41,14 @@ function RegisterForm() {
       }
       
       // 2. Auto Login after Registration
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
       const loginRes = await fetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
       });
       if (loginRes.ok) {
         const loginData = await loginRes.json();

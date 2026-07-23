@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from app.db.session import SessionLocal
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, UserLogin
+from app.schemas.user import UserCreate, UserResponse
 from app.schemas.token import Token
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.dependencies.database import get_db
@@ -41,12 +41,15 @@ async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 @router.post("/login", response_model=Token)
-async def login(credentials: UserLogin, db: Session = Depends(get_db)):
+async def login(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Authenticate a user and return a JWT access token.
+    (Standard OAuth2 form-data authentication compatible with Swagger UI)
     """
-    user = db.query(User).filter(User.email == credentials.email).first()
+    user = db.query(User).filter(User.email == credentials.username).first()
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

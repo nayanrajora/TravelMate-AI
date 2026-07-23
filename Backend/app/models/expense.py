@@ -8,9 +8,9 @@ class Expense(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE"), nullable=False)
-    category = Column(String, nullable=False) # e.g. "Food", "Transport", "Lodging", "Activities", "Shopping"
+    category = Column(String(100), nullable=False) # e.g. "Food", "Transport", "Lodging", "Activities", "Shopping"
     amount = Column(Float, nullable=False)
-    description = Column(String, nullable=True)
+    description = Column(String(255), nullable=True)
     date = Column(Date, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

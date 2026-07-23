@@ -6,8 +6,7 @@ import { useTrip } from '@/context/TripContext';
 import Link from 'next/link';
 
 export default function WeatherPage() {
-  const { trips, activeTripId } = useTrip();
-  const activeTrip = trips.find(t => t.id === activeTripId);
+  const { activeTrip } = useTrip();
 
   const [city, setCity] = useState('Tokyo, Japan');
   const [loading, setLoading] = useState(false);

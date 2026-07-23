@@ -18,8 +18,7 @@ export default function BudgetPlannerPage() {
   const [category, setCategory] = useState('Food');
   const [amount, setAmount] = useState('');
 
-  const { trips, activeTripId } = useTrip();
-  const activeTrip = trips.find(t => t.id === activeTripId);
+  const { trips, activeTrip } = useTrip();
   const budgetLimit = activeTrip?.totalBudgetEst || 5000;
   const daysCount = activeTrip?.daysCount || 7;
 

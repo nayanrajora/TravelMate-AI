@@ -7,6 +7,7 @@ from app.api.packing import router as packing_router
 from app.api.expenses import router as expenses_router
 from app.api.chat import router as chat_router
 from app.api.weather import router as weather_router
+from app.api.bookings import router as bookings_router
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     app.include_router(expenses_router, prefix="/api")
     app.include_router(chat_router, prefix="/api")
     app.include_router(weather_router, prefix="/api")
+    app.include_router(bookings_router, prefix="/api")
 
     # Health check route
     @app.get("/health", tags=["Health"])

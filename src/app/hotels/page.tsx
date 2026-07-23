@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Hotel, Star, MapPin, Search, Filter, ShieldCheck, ExternalLink, Sparkles } from 'lucide-react';
 import { useTrip } from '@/context/TripContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface HotelData {
   id: string;
@@ -20,11 +21,72 @@ interface HotelData {
 export default function HotelsPage() {
   const router = useRouter();
   const { toggleFavorite, isFavorite } = useTrip();
+  const { user, token } = useAuth();
   const [search, setSearch] = useState('');
   const [budgetFilter, setBudgetFilter] = useState('all');
   const [city, setCity] = useState('Tokyo, Japan');
   const [hotels, setHotels] = useState<HotelData[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Booking Modal State
+  const [selectedHotel, setSelectedHotel] = useState<HotelData | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [guests, setGuests] = useState(1);
+  const [isBooking, setIsBooking] = useState(false);
+
+  const handleBookClick = (hotel: HotelData) => {
+    if (!user) {
+      router.push('/login?redirect=/hotels');
+    } else {
+      setSelectedHotel(hotel);
+      setIsBookingModalOpen(true);
+    }
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!selectedHotel || !checkIn || !checkOut || !token) return;
+    setIsBooking(true);
+    try {
+      const priceStr = selectedHotel.price.replace(/[^0-9.]/g, '');
+      const pricePerNight = parseFloat(priceStr) || 0;
+      
+      const inDate = new Date(checkIn);
+      const outDate = new Date(checkOut);
+      const nights = Math.ceil((outDate.getTime() - inDate.getTime()) / (1000 * 3600 * 24)) || 1;
+      const totalPrice = pricePerNight * nights * guests;
+
+      const res = await fetch('http://localhost:8000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          hotel_name: selectedHotel.name,
+          location: selectedHotel.location,
+          price_per_night: selectedHotel.price,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests: guests,
+          total_price: totalPrice
+        })
+      });
+
+      if (res.ok) {
+        setIsBookingModalOpen(false);
+        router.push('/bookings');
+      } else {
+        alert('Booking failed. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while booking.');
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchHotels() {
@@ -193,7 +255,7 @@ export default function HotelsPage() {
                     <span className="text-[10px] text-slate-500 block">Est. Nightly Rate</span>
                   </div>
                   <button
-                    onClick={() => router.push(`/register?redirect=/create-trip&hotel=${encodeURIComponent(hotel.name)}`)}
+                    onClick={() => handleBookClick(hotel)}
                     className="px-4 py-1.5 rounded-full btn-primary text-[10px] uppercase tracking-wider font-bold flex items-center gap-1.5"
                   >
                     Book <ExternalLink className="w-3 h-3" />
@@ -202,6 +264,81 @@ export default function HotelsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {/* Booking Modal */}
+      {isBookingModalOpen && selectedHotel && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0f172a] border border-cyan-500/30 rounded-2xl p-6 w-full max-w-md shadow-2xl relative glass-panel">
+            <button
+              onClick={() => setIsBookingModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold text-slate-100 mb-2">Book Your Stay</h2>
+            <p className="text-sm text-cyan-300 mb-6">{selectedHotel.name}</p>
+
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs text-slate-400 mb-1">Check-in</label>
+                  <input
+                    type="date"
+                    value={checkIn}
+                    onChange={(e) => setCheckIn(e.target.value)}
+                    className="w-full bg-[#1e293b] border border-cyan-500/20 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs text-slate-400 mb-1">Check-out</label>
+                  <input
+                    type="date"
+                    value={checkOut}
+                    onChange={(e) => setCheckOut(e.target.value)}
+                    className="w-full bg-[#1e293b] border border-cyan-500/20 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Guests</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={guests}
+                  onChange={(e) => setGuests(parseInt(e.target.value))}
+                  className="w-full bg-[#1e293b] border border-cyan-500/20 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-cyan-500/20 flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-slate-400">Total Price</p>
+                  <p className="text-xl font-bold text-amber-400">
+                    {(() => {
+                      const priceStr = selectedHotel.price.replace(/[^0-9.]/g, '');
+                      const pricePerNight = parseFloat(priceStr) || 0;
+                      if (!checkIn || !checkOut) return selectedHotel.price;
+                      const inDate = new Date(checkIn);
+                      const outDate = new Date(checkOut);
+                      const nights = Math.ceil((outDate.getTime() - inDate.getTime()) / (1000 * 3600 * 24)) || 1;
+                      if (nights <= 0) return '$0';
+                      return `$${pricePerNight * nights * guests}`;
+                    })()}
+                  </p>
+                </div>
+                <button
+                  onClick={handleConfirmBooking}
+                  disabled={isBooking || !checkIn || !checkOut}
+                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white rounded-full font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isBooking ? 'Booking...' : 'Confirm'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
